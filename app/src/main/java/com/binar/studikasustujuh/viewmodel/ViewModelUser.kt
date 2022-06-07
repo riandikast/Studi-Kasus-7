@@ -2,73 +2,42 @@ package com.binar.studikasustujuh.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.binar.studikasustujuh.NewsRepository
+import com.binar.studikasustujuh.UserRepository
 import com.binar.studikasustujuh.api.ApiClient
 import com.binar.studikasustujuh.data.GetAllUserItem
+import com.binar.studikasustujuh.data.ResponseNewsItem
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class ViewModelUser : ViewModel(){
+@HiltViewModel
+class ViewModelUser @Inject constructor(private val api: UserRepository): ViewModel() {
+    private val userState = MutableStateFlow(emptyList<GetAllUserItem>())
+    val dataUserState : StateFlow<List<GetAllUserItem>>
+    get() = userState
 
-    var liveDataNewUserItem : MutableLiveData<List<GetAllUserItem>?> = MutableLiveData()
-    var liveDataRegis : MutableLiveData<GetAllUserItem?> = MutableLiveData()
-    var liveDataUpdate : MutableLiveData<GetAllUserItem> = MutableLiveData()
+    lateinit var registerLiveData : MutableLiveData<GetAllUserItem>
 
-    fun getLiveUserObserver() : MutableLiveData<List<GetAllUserItem>?> {
-        return liveDataNewUserItem
+    init {
+        viewModelScope.launch {
+            val news = api.getUser()
+            userState.value = news
+        }
+
+        registerLiveData = MutableLiveData()
     }
 
-    fun getLiveRegisObserver() : MutableLiveData<GetAllUserItem?> {
-        return liveDataRegis
-    }
-
-    fun getLiveUpdateObserver() : MutableLiveData<GetAllUserItem> {
-        return liveDataUpdate
-    }
-
-
-
-    fun userApi(){
-        ApiClient.instance.getAllUser()
-            .enqueue(object : retrofit2.Callback<List<GetAllUserItem>>{
-                override fun onResponse(
-                    call: Call<List<GetAllUserItem>>,
-                    getAllItem: Response<List<GetAllUserItem>>
-                ) {
-                    if (getAllItem.isSuccessful){
-                        liveDataNewUserItem.postValue(getAllItem.body())
-
-
-                    }else{
-                        liveDataNewUserItem.postValue(null)
-
-                    }
-                }
-                override fun onFailure(call: Call<List<GetAllUserItem>>, t: Throwable) {
-                    liveDataNewUserItem.postValue(null)
-                }
-            })
-    }
-
-
-    fun regisUser(username: String, name: String, password: String) {
-        ApiClient.instance.registerNew(name,username,password, "", "", "")
-            .enqueue(object : Callback<GetAllUserItem> {
-                override fun onResponse(
-                    call: Call<GetAllUserItem>,
-                    response: Response<GetAllUserItem>
-                ) {
-                    if (response.isSuccessful) {
-                        liveDataRegis.postValue(response.body())
-                    } else {
-                        liveDataRegis.postValue(null)
-                    }
-                }
-
-                override fun onFailure(call: Call<GetAllUserItem>, t: Throwable) {
-                    liveDataRegis.postValue(null)
-                }
-            })
+    fun registerLiveData(username : String, email: String, password: String){
+        viewModelScope.launch {
+            api.regisUser(username,email,password,registerLiveData)
+        }
     }
 
 }

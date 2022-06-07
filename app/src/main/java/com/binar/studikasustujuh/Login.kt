@@ -28,18 +28,14 @@ import com.binar.studikasustujuh.data.GetAllUserItem
 import com.binar.studikasustujuh.datastore.UserManager
 import com.binar.studikasustujuh.ui.theme.STUDIKASUSTUJUHTheme
 import com.binar.studikasustujuh.viewmodel.ViewModelUser
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class Login : ComponentActivity() {
-    lateinit var dataUser : List<GetAllUserItem>
-    lateinit var viewModel : ViewModelUser
-    lateinit var email: String
-    lateinit var password: String
-    lateinit var toast : String
-    var salah by Delegates.notNull<Boolean>()
-    lateinit var userManager : UserManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -66,21 +62,40 @@ class Login : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    val  viewModelUser = viewModel(modelClass = ViewModelUser::class.java)
-    var email by remember { mutableStateOf("") }
+    val mcontext = LocalContext.current
+    val userViewModel = viewModel(modelClass = ViewModelUser::class.java)
+    val dataUser by userViewModel.dataUserState.collectAsState()
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val userManager = UserManager(mcontext)
 
-
-    val mcontext = LocalContext.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Login", Modifier.padding(30.dp))
         Image(painter = painterResource(R.drawable.ic_launcher_background), contentDescription = "icon", Modifier.padding(bottom = 20.dp) )
-        TextField(value = email, onValueChange = { email = it }, Modifier.padding(10.dp),label = { Text("Masukan Email") } )
+        TextField(value = username, onValueChange = { username = it }, Modifier.padding(10.dp),label = { Text("Masukan Username") } )
         TextField(value = password, onValueChange = { password = it },label = { Text(" Masukan Password") })
         Button(modifier = Modifier.padding(30.dp) ,onClick = {
+            if (username.isNotEmpty() && password.isNotEmpty()) {
+                for (i in dataUser.indices) {
+                    if (username == dataUser[i].username && password == dataUser[i].password) {
+                        GlobalScope.launch {
+                            userManager.saveDataUser(
+                                dataUser[i].id,
+                                dataUser[i].name,
+                                dataUser[i].password,
+                                dataUser[i].username,
+                                dataUser[i].umur.toString(),
+                                dataUser[i].address,
+                                dataUser[i].image,
 
-            mcontext.startActivity(Intent(mcontext, MainActivity::class.java))
+                            )
+                        }
+                        mcontext.startActivity(Intent(mcontext, MainActivity::class.java))
+                    }
+                }
+            }
+
 
         }){
             Text(text = "Login", )

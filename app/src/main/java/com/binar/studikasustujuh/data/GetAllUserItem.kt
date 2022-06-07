@@ -1,8 +1,11 @@
 package com.binar.studikasustujuh.data
 
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class GetAllUserItem(
     @SerializedName("address")
     val address: String,
@@ -20,4 +23,4 @@ data class GetAllUserItem(
     val umur: Int,
     @SerializedName("username")
     val username: String
-)
+):Parcelable

@@ -14,7 +14,7 @@ interface ApiService {
 
     @POST("user")
     @FormUrlEncoded
-    fun registerNew(
+    suspend fun registerNew(
         @Field("name") name: String,
         @Field("username") username: String,
         @Field("password") password: String,
@@ -24,5 +24,5 @@ interface ApiService {
     ): Call<GetAllUserItem>
 
     @GET("user")
-    fun getAllUser(): Call<List<GetAllUserItem>>
+    suspend fun getAllUser(): List<GetAllUserItem>
 }
