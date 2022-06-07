@@ -13,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.binar.studikasustujuh.data.ResponseNewsItem
+import com.binar.studikasustujuh.datastore.UserManager
 import com.binar.studikasustujuh.ui.theme.STUDIKASUSTUJUHTheme
 import com.binar.studikasustujuh.viewmodel.NewsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,11 +69,19 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun JudulNews(name:String) {
-    Row {
+    val mcontext = LocalContext.current
+    val userManager = UserManager(mcontext)
+    val scope = rememberCoroutineScope()
+    val username = userManager.userUsername.collectAsState(initial = "")
+    val showUsername = username.value
+    Row  {
+
+
         Column {
             Text(text = "News", Modifier.padding(30.dp), fontSize = 18.sp)
         }
-        val context = LocalContext.current
+        Text(text = "Hello $showUsername" , Modifier.padding(30.dp), fontSize = 18.sp)
+
         Column {
 
         }

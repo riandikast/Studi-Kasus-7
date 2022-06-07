@@ -14,7 +14,7 @@ interface ApiService {
 
     @POST("user")
     @FormUrlEncoded
-    suspend fun registerNew(
+    fun registerNew(
         @Field("name") name: String,
         @Field("username") username: String,
         @Field("password") password: String,

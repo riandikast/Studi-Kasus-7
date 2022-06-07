@@ -62,7 +62,7 @@ fun Greeting2(name: String) {
 
 
         }){
-            Text(text = "Register", )
+            Text(text = "Register")
         }
     }
 }
